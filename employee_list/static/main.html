@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>execise</title>
+</head>
+<body>
+    <div>
+        <h1>员工管理</h1>
+    </div>
+    <div>
+        <form name="manage" method="post" onsubmit="displayResult(event)">
+
+            <input type="radio" name="type" value="/api/search/" checked> Search
+            <input type="radio" name="type" value="/api/add"> Add
+            <input type="radio" name="type" value="/api/delete"> Delete
+            <input type="radio" name="type" value="/api/update"> Update
+            <br><br>
+            请输入员工信息:
+            <input type="text" name="param" required>
+
+            <input type="submit" value="提交" >
+        </form>
+    </div>
+    <br><br>
+    <div style="border: 2px solid beige">
+        <p id="result">
+            结果
+        </p>
+    </div>
+</body>
+</html>
+
+<script>
+    function displayResult(event){
+        var input,
+            arr,
+            url,
+            obj = {};
+        event.preventDefault();
+
+        arr = Array.from(document.querySelectorAll("[name=type]"));
+        for(let op of arr){
+            if(op.checked){
+                url = op.value;
+            }
+        }
+        input = document.querySelector("[name=param]").value;
+        if(url ==="/api/search/"){
+            url += input;
+            obj.method = "GET";
+        } else {
+            obj.method = "POST";
+            try {
+                input = JSON.parse(input)
+            } catch (e) {
+                console.log('not json', e);
+            }
+            // user input is string, need to convert to js object before sending to server
+            obj.body = JSON.stringify({action: input});
+        }
+        obj.headers = new Headers({'Content-Type': 'application/json'});
+        console.log(url);
+
+        fetch(url, obj).then(res=>{
+            if(res.ok){
+                //res 是客户端自己封装的一个类，不同于cxt.response
+                res.text().then(            //如果服务器发string，用text(),如果发json, 用json()
+                    //text() resolve 了服务器的response的body in text 给 then
+                    document.getElementById("result").innerText = data;
+                })
+            } else {
+                document.getElementById("result").innerText = "Server did not respond.";
+            }
+        });
+    }
+</script>
